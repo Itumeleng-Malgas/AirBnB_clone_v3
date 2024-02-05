@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 '''User API for managing users'''
 
-from flask import jsonify, abort, request
+from flask import Flask, jsonify, abort, request
 from models import storage
 from api.v1.views import app_views
 from models.user import User

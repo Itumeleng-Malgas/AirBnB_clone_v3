@@ -5,31 +5,7 @@ Contains the class DBStorage
 
 import models
 from models.amenity import Amenity
-agic right? (No need to have a pretty rendered output, it’s a JSON, only the structure is important)
-
-Ok, let starts:
-
-Create a folder api at the root of the project with an empty file __init__.py
-Create a folder v1 inside api:
-create an empty file __init__.py
-create a file app.py:
-create a variable app, instance of Flask
-import storage from models
-import app_views from api.v1.views
-register the blueprint app_views to your Flask instance app
-declare a method to handle @app.teardown_appcontext that calls storage.close()
-inside if __name__ == "__main__":, run your Flask server (variable app) with:
-host = environment variable HBNB_API_HOST or 0.0.0.0 if not defined
-port = environment variable HBNB_API_PORT or 5000 if not defined
-threaded=True
-Create a folder views inside v1:
-create a file __init__.py:
-import Blueprint from flask doc
-create a variable app_views which is an instance of Blueprint (url prefix must be /api/v1)
-wildcard import of everything in the package api.v1.views.index => PEP8 will complain about it, don’t worry, it’s normal and this file (v1/views/__init__.py) won’t be check.
-create a file index.py
-import app_views from api.v1.views
-create a route /status on the object app_views that returns a JSON: "status": "OK" (see example)from models.base_model import BaseModel, Base
+from models.base_model import BaseModel, Base
 from models.city import City
 from models.place import Place
 from models.review import Review
@@ -101,11 +77,17 @@ class DBStorage:
 
     def get(self, cls, id):
         """Retrieves an object based on class and ID, or None if not found"""
-        obj = None
-        if cls is not None and issubclass(cls, BaseModel):
-            obj = self.__session.query(cls).filter(cls.id == id).first()
-        return obj
+        query_cls = classes.get(cls.__name__, None)
+        if query_cls:
+            result = self.__session.query(query_cls).filter_by(id=id).first()
+            return result
+        return None
 
     def count(self, cls=None):
-        """retrieves the number of objects of a class or all (if cls==None)"""
-        return len(self.all(cls))
+        """Counts the number of objects in storage matching the given class"""
+        if cls is None:
+            count = sum(self.__session.query(cls).count()
+                        for cls in classes.values())
+        else:
+            count = self.__session.query(cls).count()
+        return count

@@ -6,6 +6,7 @@ Contains the TestDBStorageDocs and TestDBStorage classes
 from datetime import datetime
 import inspect
 import models
+from models import storage
 from models.engine import db_storage
 from models.amenity import Amenity
 from models.base_model import BaseModel
@@ -70,6 +71,10 @@ test_db_storage.py'])
 
 class TestFileStorage(unittest.TestCase):
     """Test the FileStorage class"""
+    def setUp(self):
+        """ Initialize DBStorage and create a session """
+        storage.reload()
+
     @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
     def test_all_returns_dict(self):
         """Test that all returns a dictionaty"""
@@ -86,3 +91,27 @@ class TestFileStorage(unittest.TestCase):
     @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
     def test_save(self):
         """Test that save properly saves objects to file.json"""
+
+    # Tests for count method
+    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
+    def test_count(self):
+        """Test retrieval of data from dbstorage using get method """
+        total_count = storage.count()
+        self.assertTrue(total_count >= 0)
+
+    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
+    def test_count_specific_class(self):
+        """ Test count for a specific class (e.g., Amenity) """
+        amenity_count = storage.count(Amenity)
+        self.assertTrue(amenity_count >= 0)
+
+    # Tests for get method
+    @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
+    def test_get(self):
+        """ Test get for an existing object """
+        new_state = State(name="TestState")
+        storage.new(new_state)
+        storage.save()
+
+        retrieved_state = storage.get(State, new_state.id)
+        self.assertEqual(retrieved_state, new_state)

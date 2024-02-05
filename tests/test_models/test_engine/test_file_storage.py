@@ -3,7 +3,6 @@
 Contains the TestFileStorageDocs classes
 """
 
-from datetime import datetime
 import inspect
 import models
 from models.engine import file_storage
@@ -15,7 +14,6 @@ from models.review import Review
 from models.state import State
 from models.user import User
 import json
-import os
 import pep8
 import unittest
 FileStorage = file_storage.FileStorage
@@ -113,3 +111,33 @@ class TestFileStorage(unittest.TestCase):
         with open("file.json", "r") as f:
             js = f.read()
         self.assertEqual(json.loads(string), json.loads(js))
+
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
+    def test_get_existing_object(self):
+        """Test retrieving an existing object from FileStorage """
+        storage = FileStorage()
+
+        obj_id = "123"
+        mock_obj = BaseModel()
+        mock_obj.id = obj_id
+
+        storage.new(mock_obj)
+        storage.save()
+
+        result = storage.get(BaseModel, obj_id)
+        self.assertEqual(result, mock_obj)
+
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
+    def test_count(self):
+        """ Test count return value from filestorage """
+
+        storage = FileStorage()
+        before = storage.count()
+
+        mock_objects = [BaseModel(), Amenity(), City()]
+        for obj in mock_objects:
+            storage.new(obj)
+        storage.save()
+
+        result = storage.count()
+        self.assertEqual(result, before + len(mock_objects))

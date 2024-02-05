@@ -23,7 +23,6 @@ def get_stats():
     """
     Gets the number of objects for each type.
     """
-    res = {}
     objects = {
         'amenities': Amenity,
         'cities': City,
@@ -34,4 +33,4 @@ def get_stats():
     }
     for key, value in objects.items():
         res[key] = storage.count(value)
-    return jsonify(res)
+    return jsonify(objects)

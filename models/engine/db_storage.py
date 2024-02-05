@@ -77,9 +77,9 @@ class DBStorage:
 
     def get(self, cls, id):
         """Retrieves an object based on class and ID, or None if not found"""
-        obj = None
-        if cls is not None and issubclass(cls, BaseModel):
-            obj = self.__session.query(cls).filter(cls.id == id).first()
+        if cls and id:
+            get_all = self.all(cls)
+            return get_all.get("{}.{}".format(cls, id))
         return obj
 
     def count(self, cls=None):

@@ -23,14 +23,13 @@ def get_stats():
     """
     Gets the number of objects for each type.
     """
-    objects = {
-        'amenities': Amenity,
-        'cities': City,
-        'places': Place,
-        'reviews': Review,
-        'states': State,
-        'users': User
-    }
-    for key, value in objects.items():
-        res[key] = storage.count(value)
-    return jsonify(objects)
+    from models import storage
+    from models.user import User
+    return jsonify({
+        'amenities': storage.count('Amenity'),
+        'cities': storage.count('City'),
+        'places': storage.count('Place'),
+        'reviews': storage.count('Review'),
+        'states': storage.count('State'),
+        'users': storage.count('User')
+    })
